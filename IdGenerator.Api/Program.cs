@@ -1,6 +1,17 @@
+using IdGenerator.Api;
+
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddOptions<IdGeneratorOptions>()
+    .BindConfiguration("IdGenerator")
+    .ValidateDataAnnotations()
+    .ValidateOnStart();
+builder.Services.AddSingleton<IdGenerator.Api.IdGenerator>();
+
 var app = builder.Build();
 
-app.MapGet("/", () => "Hello World!");
+app.MapGet("/id", (IdGenerator.Api.IdGenerator idGenerator) => idGenerator.NewId());
 
 app.Run();
+
+
