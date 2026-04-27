@@ -35,11 +35,13 @@ public class IdGenerator
     private long _lastSequence = -1;
     private long _lastTimestamp = -1;
 
-    public IdGenerator(IOptions<IdGeneratorOptions> options)
+    private readonly TimeProvider _timeProvider; // time provider for ease of
+    public IdGenerator(IOptions<IdGeneratorOptions> options, TimeProvider timeProvider)
     {
         // the options object is considered valid.
         _dataCenterId = options.Value.DataCenterId;
         _machineId = options.Value.MachineId;
+        _timeProvider = timeProvider;
     }
 
     /// <summary>
@@ -82,7 +84,7 @@ public class IdGenerator
 
     private long GetCurrentTimestamp()
     {
-        long now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+        long now = _timeProvider.GetUtcNow().ToUnixTimeMilliseconds();
         return now - _epoch;
     }
 
