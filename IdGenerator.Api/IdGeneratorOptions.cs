@@ -7,9 +7,9 @@ namespace IdGenerator.Api;
 /// </summary>
 public class IdGeneratorOptions
 {
-    [Range(0, 31)]
+    [Range(0, Id.MaxDataCenterId)]
     public int DataCenterId { get; set; }
 
-    [Range(0, 31)]
+    [Range(0, Id.MaxMachineId)]
     public int MachineId { get; set; }
 }
