@@ -4,8 +4,8 @@ namespace IdGenerator.Api;
 
 /// <summary>
 /// Implements a Twitter Snowflake like long-integer ID generator. 
-/// Epoch part in the generated ID are hardcoded constant, 
-/// while DataCenterId and MachineId are from configuration. 
+/// Epoch is defined as "2023-Jul-01 00:00:00". 
+/// DataCenterId and MachineId are from configuration. 
 /// </summary>
 public class IdGenerator
 {

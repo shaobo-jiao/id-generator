@@ -1,4 +1,5 @@
-﻿using IdGenerator.Api;
+﻿using System.Collections.Concurrent;
+using IdGenerator.Api;
 using Microsoft.Extensions.Options;
 
 namespace IdGenerator.Tests;
@@ -36,7 +37,7 @@ public class IdGeneratorTests
         var id = new Id(_idGenerator.NewId());
 
         // Assert
-        Assert.True(id.Timestamp >= 0); // ignore timestamp comparision as epoch is inaccessible. just check non-negative.
+        Assert.True(id.Timestamp >= 0); // ignore timestamp comparison as epoch is inaccessible. just check non-negative.
         Assert.Equal(1, id.DataCenterId);
         Assert.Equal(1, id.MachineId);
         Assert.Equal(0, id.Sequence);
@@ -107,5 +108,33 @@ public class IdGeneratorTests
         // Assert
         Assert.Equal(0, newId.Sequence); // sequence reset to 0
         Assert.True(newId.Timestamp >= lastId.Timestamp); // should wait for next millisecond
+    }
+
+    [Fact]
+    public async Task NewId_MultipleThreads_GeneratesUniqueIds()
+    {
+        // Arrange
+        var options = Options.Create(new IdGeneratorOptions { DataCenterId = 1, MachineId = 1 });
+        var idGenerator = new IdGenerator.Api.IdGenerator(options, TimeProvider.System);
+
+        int threadCount = 10;
+        int idsPerThread = 1000;
+        var ids = new ConcurrentBag<long>();
+        var tasks = new List<Task>();
+
+        // Act
+        for (int i = 0; i < threadCount; i++)
+        {
+            tasks.Add(Task.Run(() =>
+            {
+                for (int j = 0; j < idsPerThread; j++)
+                    ids.Add(idGenerator.NewId());
+            }));
+        }
+        await Task.WhenAll(tasks.ToArray());
+
+        // Assert
+        Assert.Equal(threadCount * idsPerThread, ids.Count); // all IDs should be generated
+        Assert.Equal(threadCount * idsPerThread, ids.Distinct().Count()); // all IDs should be unique
     }
 }
