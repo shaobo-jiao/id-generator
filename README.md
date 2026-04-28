@@ -1,2 +1,2 @@
 # id-generator
-Implements a Snowflake ID generator
+Implements a Snowflake ID generator.

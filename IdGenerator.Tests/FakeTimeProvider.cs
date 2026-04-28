@@ -1,7 +1,7 @@
 ﻿namespace IdGenerator.Tests;
 
 /// <summary>
-/// Implements a fake time provider that ease testing of IdGenerator. 
+/// Implements a fake time provider that ease testing of SnowflakeIdGenerator. 
 /// </summary>
 public class FakeTimeProvider : TimeProvider
 {
@@ -11,7 +11,7 @@ public class FakeTimeProvider : TimeProvider
 
     /// <summary>
     /// max seq number is 4096. after reached, id generator loops until next millisecond.
-    /// here we set a slightly higher threshold to simulate the behaviour that IdGenerator looping until next millisecond.
+    /// here we set a slightly higher threshold to simulate the behaviour that SnowflakeIdGenerator looping until next millisecond.
     /// </summary>
     private const int _maxReadsInOneMillisecond = 4100; 
     public FakeTimeProvider(DateTimeOffset now)

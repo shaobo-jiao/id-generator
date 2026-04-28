@@ -3,11 +3,11 @@
 namespace IdGenerator.Api;
 
 /// <summary>
-/// Implements a Twitter Snowflake like long-integer ID generator. 
+/// Implements a Twitter Snowflake ID generator. 
 /// Epoch is defined as "2023-Jul-01 00:00:00". 
 /// DataCenterId and MachineId are from configuration. 
 /// </summary>
-public class IdGenerator
+public class SnowflakeIdGenerator
 {
     private readonly TimeProvider _timeProvider; // time provider for ease of testing
     private readonly Lock _lock = new();
@@ -16,9 +16,9 @@ public class IdGenerator
     private readonly long _dataCenterId;
     private readonly long _machineId;
 
-    private Id? _lastId = null; // last generated ID;
+    private SnowflakeId? _lastId = null; // last generated ID;
 
-    public IdGenerator(IOptions<IdGeneratorOptions> options, TimeProvider timeProvider)
+    public SnowflakeIdGenerator(IOptions<SnowflakeIdGeneratorOptions> options, TimeProvider timeProvider)
     {
         _timeProvider = timeProvider;
         _dataCenterId = options.Value.DataCenterId;
@@ -34,14 +34,14 @@ public class IdGenerator
         lock (_lock)
         {
             long timestamp = GetCurrentTimestamp();
-            if (timestamp >= Id.MaxTimestamp)
+            if (timestamp >= SnowflakeId.MaxTimestamp)
                 throw new InvalidOperationException("Max Timestamp reached");
 
             // if dont have last id; sequence = 0, direct generate;
             if (_lastId is null)
             {
                 // 1st id;
-                _lastId = new Id(timestamp, _dataCenterId, _machineId, 0);
+                _lastId = new SnowflakeId(timestamp, _dataCenterId, _machineId, 0);
                 return _lastId.Value;
             }
 
@@ -51,7 +51,7 @@ public class IdGenerator
             else if (timestamp == _lastId.Timestamp)
             {
                 // same timestamp, increment sequence number
-                if (_lastId.Sequence >= Id.MaxSequence)
+                if (_lastId.Sequence >= SnowflakeId.MaxSequence)
                 {
                     // max sequence number reached, wait for next millisecond to refresh sequence number
                     timestamp = WaitUntilNextMillisecond(timestamp);
@@ -63,7 +63,7 @@ public class IdGenerator
             else
                 sequence = 0;
 
-            _lastId = new Id(timestamp, _dataCenterId, _machineId, sequence);
+            _lastId = new SnowflakeId(timestamp, _dataCenterId, _machineId, sequence);
             return _lastId.Value;
         }
     }

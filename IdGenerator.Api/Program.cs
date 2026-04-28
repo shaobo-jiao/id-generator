@@ -3,15 +3,15 @@ using IdGenerator.Api;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddSingleton<TimeProvider>(TimeProvider.System);
-builder.Services.AddOptions<IdGeneratorOptions>()
-    .BindConfiguration("IdGenerator")
+builder.Services.AddOptions<SnowflakeIdGeneratorOptions>()
+    .BindConfiguration("SnowflakeIdGenerator")
     .ValidateDataAnnotations()
     .ValidateOnStart();
-builder.Services.AddSingleton<IdGenerator.Api.IdGenerator>();
+builder.Services.AddSingleton<SnowflakeIdGenerator>();
 
 var app = builder.Build();
 
-app.MapGet("/newid", (IdGenerator.Api.IdGenerator idGenerator) => idGenerator.NewId());
+app.MapGet("/newid", (SnowflakeIdGenerator idGenerator) => idGenerator.NewId());
 
 app.Run();
 
