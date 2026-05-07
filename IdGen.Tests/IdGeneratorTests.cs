@@ -1,23 +1,23 @@
 ﻿using System.Collections.Concurrent;
-using IdGenerator.Api;
+using IdGen.Api;
 using Microsoft.Extensions.Options;
 
 namespace IdGenerator.Tests;
 
 /// <summary>
-/// Tests for SnowflakeIdGenerator.
+/// Tests for IdGenerator.
 /// </summary>
-public class SnowflakeIdGeneratorTests
+public class IdGeneratorTests
 {
-    private readonly FakeTimeProvider _fakeTimeProvider;
-    private readonly SnowflakeIdGenerator _idGenerator;
+    private readonly MockTimeProvider _fakeTimeProvider;
+    private readonly IdGen.Api.IdGenerator _idGenerator;
 
-    public SnowflakeIdGeneratorTests()
+    public IdGeneratorTests()
     {
         // arrange dependencies for each test.
-        _fakeTimeProvider = new FakeTimeProvider(DateTimeOffset.UtcNow);
-        var options = Options.Create(new SnowflakeIdGeneratorOptions { DataCenterId = 1, MachineId = 1 });
-        _idGenerator = new SnowflakeIdGenerator(options, _fakeTimeProvider);
+        _fakeTimeProvider = new MockTimeProvider(DateTimeOffset.UtcNow);
+        var options = Options.Create(new IdGeneratorOptions { DataCenterId = 1, MachineId = 1 });
+        _idGenerator = new IdGen.Api.IdGenerator(options, _fakeTimeProvider);
     }
 
     [Fact]
@@ -34,7 +34,7 @@ public class SnowflakeIdGeneratorTests
     public void NewId_GeneratesSingleId_ComponentsAreValid()
     {
         // Act
-        var id = new SnowflakeId(_idGenerator.NewId());
+        var id = new Id(_idGenerator.NewId());
 
         // Assert
         Assert.True(id.Timestamp >= 0); // ignore timestamp comparison as epoch is inaccessible. just check non-negative.
@@ -87,7 +87,7 @@ public class SnowflakeIdGeneratorTests
         // Act
         _fakeTimeProvider.AdvanceMilliseconds(1); // advance to next millisecond    
         long id = _idGenerator.NewId();
-        long sequence = new SnowflakeId(id).Sequence;
+        long sequence = new Id(id).Sequence;
 
         // Assert
         Assert.Equal(0, sequence); // sequence reset to 0
@@ -100,10 +100,10 @@ public class SnowflakeIdGeneratorTests
         long lastIdValue = -1;
         for (int i = 0; i < 4096; i++)
             lastIdValue = _idGenerator.NewId();
-        var lastId = new SnowflakeId(lastIdValue);
+        var lastId = new Id(lastIdValue);
 
         // Act
-        var newId = new SnowflakeId(_idGenerator.NewId());
+        var newId = new Id(_idGenerator.NewId());
 
         // Assert
         Assert.Equal(0, newId.Sequence); // sequence reset to 0
@@ -114,8 +114,8 @@ public class SnowflakeIdGeneratorTests
     public async Task NewId_MultipleThreads_GeneratesUniqueIds()
     {
         // Arrange
-        var options = Options.Create(new SnowflakeIdGeneratorOptions { DataCenterId = 1, MachineId = 1 });
-        var idGenerator = new SnowflakeIdGenerator(options, TimeProvider.System);
+        var options = Options.Create(new IdGeneratorOptions { DataCenterId = 1, MachineId = 1 });
+        var idGenerator = new IdGen.Api.IdGenerator(options, TimeProvider.System);
 
         int threadCount = 10;
         int idsPerThread = 1000;

@@ -1,7 +1,7 @@
-﻿namespace IdGenerator.Api;
+﻿namespace IdGen.Api;
 
 /// <summary>
-/// represents a SnowflakeId generated from SnowflakeIdGenerator
+/// wraps an Id generated from IdGenerator
 /// 
 /// The bits of an ID are partitioned as follows:
 /// - bits[0]: sign bit, always 0
@@ -10,9 +10,9 @@
 /// - bits[47..51]: machine ID, 5 bits
 /// - bits[52..63]: sequence number, 12 bits
 /// </summary>
-public class SnowflakeId
+public class Id
 {
-    #region SnowflakeId partition constants    
+    #region Snowflake Id partition constants    
     private const int _timestampBits = 41;
     private const int _dataCenterIdBits = 5;
     private const int _machineIdBits = 5;
@@ -30,13 +30,13 @@ public class SnowflakeId
     public long MachineId { get; }
     public long Sequence { get; }
 
-    public SnowflakeId(long value)
+    public Id(long value)
     {
         Value = value;
         (Timestamp, DataCenterId, MachineId, Sequence) = DecomposeId(value);
     }
 
-    public SnowflakeId(long timestamp, long dataCenterId, long machineId, long sequence)
+    public Id(long timestamp, long dataCenterId, long machineId, long sequence)
     {
         Timestamp = timestamp;
         DataCenterId = dataCenterId;

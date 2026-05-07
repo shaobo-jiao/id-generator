@@ -19,7 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\IdGenerator.Api\IdGenerator.Api.csproj" />
+    <ProjectReference Include="..\IdGen.Api\IdGen.Api.csproj" />
   </ItemGroup>
 
 </Project>

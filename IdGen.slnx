@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="IdGen.Api/IdGen.Api.csproj" />
+  <Project Path="IdGen.Tests/IdGen.Tests.csproj" />
+</Solution>

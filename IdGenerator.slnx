@@ -1,4 +1,0 @@
-<Solution>
-  <Project Path="IdGenerator.Api/IdGenerator.Api.csproj" />
-  <Project Path="IdGenerator.Tests/IdGenerator.Tests.csproj" />
-</Solution>
