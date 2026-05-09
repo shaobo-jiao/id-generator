@@ -8,14 +8,6 @@ builder.Services.AddOptions<IdOptions>()
     .BindConfiguration("IdOptions")
     .ValidateOnStart();
 builder.Services.AddSingleton<IValidateOptions<IdOptions>, IdOptionsValidator>();
-
-
-
-
-builder.Services.AddOptions<IdGeneratorOptions>()
-    .BindConfiguration("IdGenerator")
-    .ValidateDataAnnotations()
-    .ValidateOnStart();
 builder.Services.AddSingleton<IdGenerator>();
 
 var app = builder.Build();

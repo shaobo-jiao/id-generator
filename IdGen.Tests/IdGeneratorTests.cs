@@ -16,7 +16,14 @@ public class IdGeneratorTests
     {
         // arrange dependencies for each test.
         _fakeTimeProvider = new MockTimeProvider(DateTimeOffset.UtcNow);
-        var options = Options.Create(new IdGeneratorOptions { DataCenterId = 1, MachineId = 1 });
+        var options = Options.Create(new IdOptions
+        {
+            Epoch = new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.FromTicks(0)),
+            TimestampBits = 41,
+            WorkerIdBits = 10,
+            SequenceBits = 12,
+            WorkerId = 1,
+        });
         _idGenerator = new IdGen.Api.IdGenerator(options, _fakeTimeProvider);
     }
 
@@ -34,12 +41,11 @@ public class IdGeneratorTests
     public void NewId_GeneratesSingleId_ComponentsAreValid()
     {
         // Act
-        var id = new Id(_idGenerator.NewId());
+        var id = new Id(_idGenerator.IdStructure, _idGenerator.NewId());
 
         // Assert
         Assert.True(id.Timestamp >= 0); // ignore timestamp comparison as epoch is inaccessible. just check non-negative.
-        Assert.Equal(1, id.DataCenterId);
-        Assert.Equal(1, id.MachineId);
+        Assert.Equal(1, id.WorkerId);
         Assert.Equal(0, id.Sequence);
     }
 
@@ -87,7 +93,7 @@ public class IdGeneratorTests
         // Act
         _fakeTimeProvider.AdvanceMilliseconds(1); // advance to next millisecond    
         long id = _idGenerator.NewId();
-        long sequence = new Id(id).Sequence;
+        long sequence = new Id(_idGenerator.IdStructure, id).Sequence;
 
         // Assert
         Assert.Equal(0, sequence); // sequence reset to 0
@@ -100,10 +106,10 @@ public class IdGeneratorTests
         long lastIdValue = -1;
         for (int i = 0; i < 4096; i++)
             lastIdValue = _idGenerator.NewId();
-        var lastId = new Id(lastIdValue);
+        var lastId = new Id(_idGenerator.IdStructure, lastIdValue);
 
         // Act
-        var newId = new Id(_idGenerator.NewId());
+        var newId = new Id(_idGenerator.IdStructure, _idGenerator.NewId());
 
         // Assert
         Assert.Equal(0, newId.Sequence); // sequence reset to 0
@@ -113,8 +119,15 @@ public class IdGeneratorTests
     [Fact]
     public async Task NewId_MultipleThreads_GeneratesUniqueIds()
     {
-        // Arrange
-        var options = Options.Create(new IdGeneratorOptions { DataCenterId = 1, MachineId = 1 });
+        // Arrange: use TimeProvider.System here
+        var options = Options.Create(new IdOptions
+        {
+            Epoch = new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.FromTicks(0)),
+            TimestampBits = 41,
+            WorkerIdBits = 10,
+            SequenceBits = 12,
+            WorkerId = 1,
+        });
         var idGenerator = new IdGen.Api.IdGenerator(options, TimeProvider.System);
 
         int threadCount = 10;
